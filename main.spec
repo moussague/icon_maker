@@ -5,7 +5,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('/path/to/Icon_maker/.env/lib/python3.10/site-packages/PIL/','PIL'),],
+    datas=[('/opt/hostedtoolcache/Python/3.10.12/x64/lib//python3.10/site-packages/PIL/','PIL'),],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

@@ -6,9 +6,16 @@ on:
       - main
 
 jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
   build:
     name: Build Executables
-    needs: create_release
+    needs: setup
     runs-on: ${{ matrix.config.os }}
     strategy:
       matrix:
@@ -17,7 +24,8 @@ jobs:
           # - os: macos-latest
           # - os: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Setup Python
         uses: actions/setup-python@v3
         with:
@@ -39,11 +47,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.event.head_commit.message }}
-          release_name: ${{ github.event.head_commit.message }}
+          tag_name: Test_tag_name #${{ github.run_number }} # ${{ github.event.head_commit.message }}
+          release_name: Test_Release # ${{ github.run_number }} # ${{ github.event.head_commit.message }}
           overwrite: true
           body: |
-            Test Release v1.0.0
+            Test Release v1.0.0 body
           draft: false
           prerelease: false
       - name: Upload Release Asset
