@@ -1,0 +1,5 @@
+.env/
+.vscode/
+others/
+dist/
+build/
