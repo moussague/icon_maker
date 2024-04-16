@@ -1,0 +1,58 @@
+name: Build Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build Executables
+    needs: create_release
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      matrix:
+        config:
+          - os: ubuntu-latest
+          # - os: macos-latest
+          # - os: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10.12'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+      - name: Build with pyinstaller for ${{ matrix.config.os }}
+        run: pyinstaller main.spec
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Ubuntu
+          path: dist/main
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.head_commit.message }}
+          release_name: ${{ github.event.head_commit.message }}
+          overwrite: true
+          body: |
+            Test Release v1.0.0
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{steps.create_release.outputs.upload_url}}
+          asset_path: dist/main
+          asset_name: Icon_Maker
+          asset_content_type: application/x-executable
