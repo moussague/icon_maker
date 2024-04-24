@@ -22,38 +22,44 @@ jobs:
         config:
           - os: ubuntu-latest
           # - os: macos-latest
-          # - os: windows-latest
+          - os: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Setup Python
         uses: actions/setup-python@v3
         with:
           python-version: '3.10.12'
-      - name: Install dependencies
+      - name: Install dependencies for ${{ matrix.config.os }}
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
+
       - name: Build with pyinstaller for ${{ matrix.config.os }}
         run: pyinstaller main.spec
       - uses: actions/upload-artifact@v2
         with:
           name: Ubuntu
           path: dist/main
+
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: Test_tag_name #${{ github.run_number }} # ${{ github.event.head_commit.message }}
-          release_name: Test_Release # ${{ github.run_number }} # ${{ github.event.head_commit.message }}
+        with: 
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.event.head_commit.message }}
           overwrite: true
           body: |
-            Test Release v1.0.0 body
+            New release is here!
+            version: ${{ github.ref }}
+            release name: ${{ github.event.head_commit.message }}
           draft: false
           prerelease: false
+
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
